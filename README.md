@@ -7,7 +7,7 @@ A Crusader Kings III mod that lets you command a Pope who is your puppet to enac
 - **Game version:** 1.20.x
 - **Mod version:** 1.0.0
 - **Author:** [Sourenics](https://github.com/Sourenics)
-- **Steam Workshop:** coming soon
+- **Steam Workshop:** [Puppet Papal Bulls](https://steamcommunity.com/sharedfiles/filedetails/?id=3831434191)
 
 ## Features
 
