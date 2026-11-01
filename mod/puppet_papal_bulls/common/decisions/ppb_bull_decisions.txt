@@ -1,0 +1,760 @@
+﻿# Puppet Papal Bulls - the four papal bulls as decisions a Pope who is a player's puppet takes on the
+# player's command (puppet actions, see common/puppets). Each decision is a copy of the vanilla bull
+# decision from common/decisions/dlc_decisions/pam/bulls_decisions.txt (game 1.20.1.2); changes are
+# marked PUPPET PAPAL BULLS. The game evaluates a puppet decision for the puppet (root = the Pope) in
+# some steps and for the player in others, so every check, cost and effect goes through scope:ppb_pope,
+# the Pope in both cases (see ppb_triggers.txt and ppb_effects.txt).
+# The bull itself (pam_bull_events) and its cooldowns are vanilla, so they are shared with the
+# bulls the Pope enacts on his own.
+
+ppb_crusade_bull_decision = {
+	picture = {
+		reference = "gfx/interface/illustrations/event_story/pam_the_christian_church_crusade.dds"
+	}
+	decision_group_type = major
+	# PUPPET PAPAL BULLS: shown only when a player keeps the Pope as external clerical puppet. On the
+	# puppet path root is the Pope; if the game checks it for the player, root is the player.
+	is_shown = {
+		has_pam_dlc_trigger = yes
+		OR = {
+			AND = {
+				is_ai = yes
+				is_puppet_of_type = external_theological_agent_puppet
+				puppeteer ?= { is_ai = no }
+			}
+			AND = {
+				is_ai = no
+				puppet:external_theological_agent_puppet ?= {
+					any_held_title = { is_head_of_faith = yes }
+					faith ?= { has_papacy_trigger = yes }
+				}
+			}
+		}
+	}
+	should_create_alert = { always = no }
+
+	desc = pick_crusade_target_decision_desc
+	selection_tooltip = pick_crusade_target_decision_tooltip
+	confirm_text = pick_crusade_target_decision_confirm
+
+	widget = {
+		controller = select_kingdom_title
+		title_valid = {
+			scope:ruler = { ppb_save_pope_trigger = yes }
+			scope:ppb_pope.faith = {
+				save_temporary_scope_as = faith
+				save_temporary_scope_value_as = {
+					name = faith_strength
+					value = faith_military_strength
+				}
+			}
+			valid_ghw_target_trigger = { FAITH = scope:faith }
+		}
+	}
+
+	# PUPPET PAPAL BULLS: the requirements are checked on the Pope, whether the game evaluates the
+	# decision for him (root, on the puppet path) or for the player who commands him
+	is_valid = {
+		trigger_if = {
+			limit = { is_ai = no }
+			exists = puppet:external_theological_agent_puppet
+			puppet:external_theological_agent_puppet = { ppb_crusade_bull_valid_trigger = yes }
+		}
+		trigger_else = {
+			ppb_crusade_bull_valid_trigger = yes
+		}
+	}
+
+	is_valid_showing_failures_only = {
+		trigger_if = {
+			limit = { is_ai = no }
+			exists = puppet:external_theological_agent_puppet
+			puppet:external_theological_agent_puppet = { ppb_crusade_bull_failures_trigger = yes }
+		}
+		trigger_else = {
+			ppb_crusade_bull_failures_trigger = yes
+		}
+	}
+
+	cost = {
+		piety = {
+			value = pam_enact_a_crusade_bull_cost_value
+			if = {
+				limit = { is_ai = no }
+				multiply = 0
+			}
+		}
+	}
+
+	effect = {
+		# PUPPET PAPAL BULLS: the Pope enacts the bull, whoever the game runs the decision for
+		ppb_save_pope_effect = yes
+		if = {
+			limit = { is_ai = no }
+			scope:ppb_pope = {
+				add_piety = {
+					value = 0
+					subtract = pam_enact_a_crusade_bull_cost_value
+				}
+			}
+		}
+		scope:ppb_pope = {
+			# PUPPET PAPAL BULLS: set by Enact a Bull in vanilla, read by the bull's letter to the faith's rulers
+			set_variable = {
+				name = bull_option
+				value = flag:crusade
+				years = 1
+			}
+			save_scope_as = bull_issuer
+			if = {
+				limit = { exists = scope:title }
+				set_variable = {
+					name = pam_bull_ghw_target_kingdom
+					value = scope:title
+				}
+			}
+			show_as_tooltip = {
+				custom_tooltip = pick_crusade_target_decision_effect_tt
+			}
+			set_variable = {
+				name = enact_a_bull_crusade_cooldown
+				years = 5
+			}
+			trigger_event = pam_bull_events.0001
+		}
+	}
+
+	ai_check_interval = 0
+
+	ai_potential = {
+		always = no
+	}
+}
+
+ppb_rite_heresy_bull_decision = {
+	picture = {
+		reference = "gfx/interface/illustrations/event_story/pam_the_christian_church_instability.dds"
+	}
+	decision_group_type = major
+	# PUPPET PAPAL BULLS: shown only when a player keeps the Pope as external clerical puppet. On the
+	# puppet path root is the Pope; if the game checks it for the player, root is the player.
+	is_shown = {
+		has_pam_dlc_trigger = yes
+		OR = {
+			AND = {
+				is_ai = yes
+				is_puppet_of_type = external_theological_agent_puppet
+				puppeteer ?= { is_ai = no }
+			}
+			AND = {
+				is_ai = no
+				puppet:external_theological_agent_puppet ?= {
+					any_held_title = { is_head_of_faith = yes }
+					faith ?= { has_papacy_trigger = yes }
+				}
+			}
+		}
+	}
+	should_create_alert = { always = no }
+
+	
+
+	desc = pam_declare_rite_heresy_bull_decision_desc
+	selection_tooltip = pam_declare_rite_heresy_bull_decision_tooltip
+	confirm_text = pam_declare_rite_heresy_bull_decision_confirm
+
+	# PUPPET PAPAL BULLS: the requirements are checked on the Pope, whether the game evaluates the
+	# decision for him (root, on the puppet path) or for the player who commands him
+	is_valid = {
+		trigger_if = {
+			limit = { is_ai = no }
+			exists = puppet:external_theological_agent_puppet
+			puppet:external_theological_agent_puppet = { ppb_rite_heresy_bull_valid_trigger = yes }
+		}
+		trigger_else = {
+			ppb_rite_heresy_bull_valid_trigger = yes
+		}
+	}
+
+	is_valid_showing_failures_only = {
+		trigger_if = {
+			limit = { is_ai = no }
+			exists = puppet:external_theological_agent_puppet
+			puppet:external_theological_agent_puppet = { ppb_rite_heresy_bull_failures_trigger = yes }
+		}
+		trigger_else = {
+			ppb_rite_heresy_bull_failures_trigger = yes
+		}
+	}
+
+	cost = {
+		piety = {
+			value = pam_enact_a_bull_cost_value
+			if = {
+				limit = { is_ai = no }
+				multiply = 0
+			}
+		}
+	}
+
+	effect = {
+		# PUPPET PAPAL BULLS: the Pope enacts the bull, whoever the game runs the decision for
+		ppb_save_pope_effect = yes
+		if = {
+			limit = { is_ai = no }
+			scope:ppb_pope = {
+				add_piety = {
+					value = 0
+					subtract = pam_enact_a_bull_cost_value
+				}
+			}
+		}
+		scope:ppb_pope = {
+			set_variable = {
+				name = bull_option
+				value = flag:heresy
+				years = 1
+			}
+			save_scope_as = bull_issuer
+			scope:selected_item = { save_scope_as = heresy_rite }
+			show_as_tooltip = {
+				pam_declare_rite_heresy_effect = yes
+			}
+			set_variable = {
+				name = enact_a_bull_rite_heresy_cooldown
+				years = 5
+			}
+			trigger_event = pam_bull_events.0003
+		}
+	}
+
+	widget = {
+		gui = "decision_view_widget_select_rite"
+		controller = select_scope_object
+		show_from_start = yes
+		decision_to_second_step_button = "SELECT"
+
+		setup_items = {
+			scope:actor = { ppb_save_pope_effect = yes }
+			scope:ppb_pope = {
+				faith = {
+					every_faith_rite = {
+						limit = {
+							pam_rite_can_be_declared_heresy_trigger = yes
+						}
+						add_to_list = item_list
+					}
+				}
+			}
+		}
+
+		default_item = {
+			scope:actor = { ppb_save_pope_effect = yes }
+			scope:ppb_pope = {
+				faith = {
+					random_faith_rite = {
+						limit = {
+							pam_rite_can_be_declared_heresy_trigger = yes
+						}
+						save_scope_as = selected_item
+					}
+				}
+			}
+		}
+
+		is_item_valid = {
+			scope:actor = { ppb_save_pope_trigger = yes }
+			pam_rite_can_be_declared_heresy_trigger = yes
+		}
+
+		ai_select_item = {
+			scope:actor = { ppb_save_pope_effect = yes }
+			scope:ppb_pope = {
+				faith = {
+					ordered_faith_rite = {
+						limit = {
+							pam_rite_can_be_declared_heresy_trigger = yes
+							trigger_if = {
+								limit = { exists = head_of_rite }
+								scope:ppb_pope = {
+									dislikes_character_trigger = { CHARACTER = prev.head_of_rite }
+								}
+							}
+						}
+						order_by = "divergence(faith.main_rite)"
+						save_scope_as = selected_item
+					}
+				}
+			}
+		}
+	}
+
+	ai_check_interval = 0
+
+	ai_potential = {
+		always = no
+	}
+}
+
+ppb_permit_tenet_bull_decision = {
+	picture = {
+		reference = "gfx/interface/illustrations/event_story/pam_the_christian_church_stability.dds"
+	}
+	decision_group_type = major
+	# PUPPET PAPAL BULLS: shown only when a player keeps the Pope as external clerical puppet. On the
+	# puppet path root is the Pope; if the game checks it for the player, root is the player.
+	is_shown = {
+		has_pam_dlc_trigger = yes
+		OR = {
+			AND = {
+				is_ai = yes
+				is_puppet_of_type = external_theological_agent_puppet
+				puppeteer ?= { is_ai = no }
+			}
+			AND = {
+				is_ai = no
+				puppet:external_theological_agent_puppet ?= {
+					any_held_title = { is_head_of_faith = yes }
+					faith ?= { has_papacy_trigger = yes }
+				}
+			}
+		}
+	}
+	should_create_alert = { always = no }
+
+	
+
+	desc = pam_permit_tenet_decision_desc
+	selection_tooltip = pam_permit_tenet_decision_tooltip
+	confirm_text = pam_permit_tenet_decision_confirm
+
+	# PUPPET PAPAL BULLS: the requirements are checked on the Pope, whether the game evaluates the
+	# decision for him (root, on the puppet path) or for the player who commands him
+	is_valid = {
+		trigger_if = {
+			limit = { is_ai = no }
+			exists = puppet:external_theological_agent_puppet
+			puppet:external_theological_agent_puppet = { ppb_permit_tenet_bull_valid_trigger = yes }
+		}
+		trigger_else = {
+			ppb_permit_tenet_bull_valid_trigger = yes
+		}
+	}
+
+	is_valid_showing_failures_only = {
+		trigger_if = {
+			limit = { is_ai = no }
+			exists = puppet:external_theological_agent_puppet
+			puppet:external_theological_agent_puppet = { ppb_permit_tenet_bull_failures_trigger = yes }
+		}
+		trigger_else = {
+			ppb_permit_tenet_bull_failures_trigger = yes
+		}
+	}
+
+	cost = {
+		piety = {
+			value = pam_enact_a_bull_cost_value
+			if = {
+				limit = { is_ai = no }
+				multiply = 0
+			}
+		}
+	}
+
+	effect = {
+		# PUPPET PAPAL BULLS: the Pope enacts the bull, whoever the game runs the decision for
+		ppb_save_pope_effect = yes
+		if = {
+			limit = { is_ai = no }
+			scope:ppb_pope = {
+				add_piety = {
+					value = 0
+					subtract = pam_enact_a_bull_cost_value
+				}
+			}
+		}
+		scope:ppb_pope = {
+			set_variable = {
+				name = bull_option
+				value = flag:tenet_permitted
+				years = 1
+			}
+			save_scope_as = bull_issuer
+			save_scope_as = pam_tenet_stance_issuer
+			save_scope_as = pam_tenet_stance_permit
+			scope:selected_item = { save_scope_as = pam_tenet_stance_tenet }
+			show_as_tooltip = {
+				faith = {
+					set_tenet_status = {
+						tenet = scope:selected_item
+						status = permitted
+					}
+					change_fervor = {
+						value = significant_fervor_loss
+						desc = fervor_loss_pam_tenet_permitted
+					}
+					if = {
+						limit = { has_tenet_popularity_trigger = yes }
+						change_tenet_popularity = {
+							target = scope:selected_item
+							change = medium_tenet_popularity_gain
+						}
+					}
+				}
+			}
+			set_variable = {
+				name = enact_a_bull_tenet_permitted_cooldown
+				years = 5
+			}
+			trigger_event = pam_bull_events.0002
+		}
+	}
+
+	widget = {
+		gui = "decision_view_widget_select_tenet"
+		controller = select_scope_object
+		show_from_start = yes
+		decision_to_second_step_button = "SELECT"
+
+		# List is tenets the HoF personally knows + tenets the rite knows
+		setup_items = {
+			scope:actor = { ppb_save_pope_effect = yes }
+			scope:ppb_pope = {
+				ordered_character_tenet = {
+					knowledge_filter = known
+					order_by = {
+						value = pam_raw_tenet_popularity_value
+						multiply = -1
+					}
+					max = 200
+					check_range_bounds = no
+					add_to_list = item_list
+				}
+			}
+		}
+
+		default_item = {
+			scope:actor = { ppb_save_pope_effect = yes }
+			scope:ppb_pope = {
+				random_character_tenet = {
+					knowledge_filter = known
+					limit = { ppb_tenet_can_be_permitted_trigger = yes }
+					save_scope_as = selected_item
+				}
+			}
+		}
+
+		is_item_valid = {
+			scope:actor = { ppb_save_pope_trigger = yes }
+			ppb_tenet_can_be_permitted_trigger = yes
+		}
+
+		ai_select_item = {
+			scope:actor = { ppb_save_pope_effect = yes }
+			scope:ppb_pope = {
+				if = { # The Pope does not leave his own practice a crime, whatever the desired list says
+					limit = {
+						any_personal_tenet = {
+							scope:ppb_pope.rite = {
+								has_tenet_status = { tenet = prev status = prohibited }
+							}
+							pam_tenet_ai_may_permit_trigger = { CHARACTER = scope:ppb_pope }
+						}
+					}
+					random_personal_tenet = {
+						limit = {
+							scope:ppb_pope.rite = {
+								has_tenet_status = { tenet = prev status = prohibited }
+							}
+							pam_tenet_ai_may_permit_trigger = { CHARACTER = scope:ppb_pope }
+						}
+						save_scope_as = selected_item
+					}
+				}
+				else_if = { # A tenet the faith adores gets sanctioned whether or not the Pope cares for it
+					limit = {
+						any_character_tenet = {
+							knowledge_filter = known
+							ppb_tenet_can_be_permitted_trigger = yes
+							pam_tenet_is_overwhelmingly_popular_trigger = { CHARACTER = scope:ppb_pope }
+						}
+					}
+					ordered_character_tenet = {
+						knowledge_filter = known
+						limit = {
+							ppb_tenet_can_be_permitted_trigger = yes
+							pam_tenet_is_overwhelmingly_popular_trigger = { CHARACTER = scope:ppb_pope }
+						}
+						order_by = pam_raw_tenet_popularity_value
+						position = 0
+						save_scope_as = selected_item
+					}
+				}
+				else_if = {
+					limit = {
+						any_personal_tenet = {
+							ppb_tenet_can_be_permitted_trigger = yes
+							pam_tenet_ai_may_permit_trigger = { CHARACTER = scope:ppb_pope }
+						}
+					}
+					random_personal_tenet = {
+						limit = {
+							ppb_tenet_can_be_permitted_trigger = yes
+							pam_tenet_ai_may_permit_trigger = { CHARACTER = scope:ppb_pope }
+						}
+						weight = {
+							base = 10
+							modifier = {
+								add = pam_tenet_popularity_impact_value
+							}
+							modifier = {
+								factor = 0.25
+								this = tenet:tenet_polyamory
+							}
+						}
+						save_scope_as = selected_item
+					}
+				}
+				else = {
+					random_desired_tenet = {
+						limit = {
+							ppb_tenet_can_be_permitted_trigger = yes
+							pam_tenet_ai_may_permit_trigger = { CHARACTER = scope:ppb_pope }
+						}
+						only_positive = yes
+						threshold = 1
+						selection_count = 97
+						weight = {
+							base = 10
+							modifier = {
+								add = pam_tenet_popularity_impact_value
+							}
+							modifier = {
+								factor = 0.25
+								this = tenet:tenet_polyamory
+							}
+						}
+						save_scope_as = selected_item
+					}
+				}
+			}
+		}
+	}
+
+	ai_check_interval = 0
+
+	ai_potential = {
+		always = no
+	}
+}
+
+ppb_prohibit_tenet_bull_decision = {
+	picture = {
+		reference = "gfx/interface/illustrations/event_story/pam_the_christian_church_instability.dds"
+	}
+	decision_group_type = major
+	# PUPPET PAPAL BULLS: shown only when a player keeps the Pope as external clerical puppet. On the
+	# puppet path root is the Pope; if the game checks it for the player, root is the player.
+	is_shown = {
+		has_pam_dlc_trigger = yes
+		OR = {
+			AND = {
+				is_ai = yes
+				is_puppet_of_type = external_theological_agent_puppet
+				puppeteer ?= { is_ai = no }
+			}
+			AND = {
+				is_ai = no
+				puppet:external_theological_agent_puppet ?= {
+					any_held_title = { is_head_of_faith = yes }
+					faith ?= { has_papacy_trigger = yes }
+				}
+			}
+		}
+	}
+	should_create_alert = { always = no }
+
+	desc = pam_prohibit_tenet_decision_desc
+	selection_tooltip = pam_prohibit_tenet_decision_tooltip
+	confirm_text = pam_prohibit_tenet_decision_confirm
+
+	# PUPPET PAPAL BULLS: the requirements are checked on the Pope, whether the game evaluates the
+	# decision for him (root, on the puppet path) or for the player who commands him
+	is_valid = {
+		trigger_if = {
+			limit = { is_ai = no }
+			exists = puppet:external_theological_agent_puppet
+			puppet:external_theological_agent_puppet = { ppb_prohibit_tenet_bull_valid_trigger = yes }
+		}
+		trigger_else = {
+			ppb_prohibit_tenet_bull_valid_trigger = yes
+		}
+	}
+
+	is_valid_showing_failures_only = {
+		trigger_if = {
+			limit = { is_ai = no }
+			exists = puppet:external_theological_agent_puppet
+			puppet:external_theological_agent_puppet = { ppb_prohibit_tenet_bull_failures_trigger = yes }
+		}
+		trigger_else = {
+			ppb_prohibit_tenet_bull_failures_trigger = yes
+		}
+	}
+
+	cost = {
+		piety = {
+			value = pam_enact_a_bull_cost_value
+			if = {
+				limit = { is_ai = no }
+				multiply = 0
+			}
+		}
+	}
+
+	effect = {
+		# PUPPET PAPAL BULLS: the Pope enacts the bull, whoever the game runs the decision for
+		ppb_save_pope_effect = yes
+		if = {
+			limit = { is_ai = no }
+			scope:ppb_pope = {
+				add_piety = {
+					value = 0
+					subtract = pam_enact_a_bull_cost_value
+				}
+			}
+		}
+		scope:ppb_pope = {
+			set_variable = {
+				name = bull_option
+				value = flag:tenet_forbidden
+				years = 1
+			}
+			save_scope_as = bull_issuer
+			save_scope_as = pam_tenet_stance_issuer
+			save_scope_as = pam_tenet_stance_prohibit
+			scope:selected_item = { save_scope_as = pam_tenet_stance_tenet }
+			show_as_tooltip = {
+				faith = {
+					set_tenet_status = {
+						tenet = scope:selected_item
+						status = prohibited
+					}
+					change_fervor = {
+						value = notable_fervor_value
+						desc = fervor_gain_pam_tenet_prohibited
+					}
+					if = {
+						limit = { has_tenet_popularity_trigger = yes }
+						change_tenet_popularity = {
+							target = scope:selected_item
+							change = major_tenet_popularity_loss
+						}
+					}
+				}
+			}
+			set_variable = {
+				name = enact_a_bull_tenet_forbidden_cooldown
+				years = 5
+			}
+			trigger_event = pam_bull_events.0002
+		}
+	}
+
+	widget = {
+		gui = "decision_view_widget_select_tenet"
+		controller = select_scope_object
+		show_from_start = yes
+		decision_to_second_step_button = "SELECT"
+
+		# List is tenets the HoF personally knows + tenets the rite knows
+		setup_items = {
+			scope:actor = { ppb_save_pope_effect = yes }
+			scope:ppb_pope = {
+				ordered_character_tenet = {
+					knowledge_filter = known
+					order_by = pam_raw_tenet_popularity_value
+					max = 200
+					check_range_bounds = no
+					add_to_list = item_list
+				}
+			}
+		}
+
+		default_item = {
+			scope:actor = { ppb_save_pope_effect = yes }
+			scope:ppb_pope = {
+				random_character_tenet = {
+					knowledge_filter = known
+					limit = { ppb_tenet_can_be_prohibited_trigger = yes }
+					save_scope_as = selected_item
+				}
+			}
+		}
+
+		is_item_valid = {
+			scope:actor = { ppb_save_pope_trigger = yes }
+			ppb_tenet_can_be_prohibited_trigger = yes
+		}
+
+		ai_select_item = {
+			scope:actor = { ppb_save_pope_effect = yes }
+			scope:ppb_pope = {
+				if = { # Reform moves against the most entrenched vice whether or not the Pope minds it
+					limit = {
+						any_character_tenet = {
+							knowledge_filter = known
+							ppb_tenet_can_be_prohibited_trigger = yes
+							scope:ppb_pope = {
+								NOT = { has_personal_tenet = scope:pam_tenet_candidate }
+							}
+							pam_tenet_ai_should_purge_trigger = { CHARACTER = scope:ppb_pope }
+						}
+					}
+					ordered_character_tenet = {
+						knowledge_filter = known
+						limit = {
+							ppb_tenet_can_be_prohibited_trigger = yes
+							scope:ppb_pope = {
+								NOT = { has_personal_tenet = scope:pam_tenet_candidate }
+							}
+							pam_tenet_ai_should_purge_trigger = { CHARACTER = scope:ppb_pope }
+						}
+						order_by = pam_raw_tenet_popularity_value
+						position = 0
+						save_scope_as = selected_item
+					}
+				}
+				else = {
+					random_undesired_tenet = {
+						limit = {
+							ppb_tenet_can_be_prohibited_trigger = yes
+							scope:ppb_pope = {
+								NOT = { has_personal_tenet = scope:pam_tenet_candidate }
+							}
+							pam_tenet_ai_may_prohibit_trigger = { CHARACTER = scope:ppb_pope }
+						}
+						known_tenets = yes
+						only_negative = yes
+						threshold = -1
+						selection_count = 97
+						weight = {
+							base = 10
+							modifier = {
+								add = pam_tenet_unpopularity_impact_value
+							}
+						}
+						save_scope_as = selected_item
+					}
+				}
+			}
+		}
+	}
+
+	ai_check_interval = 0
+
+	ai_potential = {
+		always = no
+	}
+}

@@ -1,0 +1,23 @@
+﻿l_french:
+ # Puppet Papal Bulls. Every text reuses the vanilla localization of the bulls, so it is the same in
+ # every game language.
+ ppb_crusade_bull_decision: "$enact_a_bull_decision$: $enact_a_bull_decision_option_crusade$"
+ ppb_crusade_bull_decision_desc: "$pick_crusade_target_decision_desc$"
+ ppb_crusade_bull_decision_tooltip: "$pick_crusade_target_decision_tooltip$"
+ ppb_crusade_bull_decision_confirm: "$pick_crusade_target_decision_confirm$"
+ ppb_rite_heresy_bull_decision: "$enact_a_bull_decision$: $enact_a_bull_decision_option_rite_heresy$"
+ ppb_rite_heresy_bull_decision_desc: "$pam_declare_rite_heresy_bull_decision_desc$"
+ ppb_rite_heresy_bull_decision_tooltip: "$pam_declare_rite_heresy_bull_decision_tooltip$"
+ ppb_rite_heresy_bull_decision_confirm: "$pam_declare_rite_heresy_bull_decision_confirm$"
+ ppb_permit_tenet_bull_decision: "$enact_a_bull_decision$: $enact_a_bull_decision_option_tenet_stance_permitted$"
+ ppb_permit_tenet_bull_decision_desc: "$pam_permit_tenet_decision_desc$"
+ ppb_permit_tenet_bull_decision_tooltip: "$pam_permit_tenet_decision_tooltip$"
+ ppb_permit_tenet_bull_decision_confirm: "$pam_permit_tenet_decision_confirm$"
+ ppb_prohibit_tenet_bull_decision: "$enact_a_bull_decision$: $enact_a_bull_decision_option_tenet_stance_forbidden$"
+ ppb_prohibit_tenet_bull_decision_desc: "$pam_prohibit_tenet_decision_desc$"
+ ppb_prohibit_tenet_bull_decision_tooltip: "$pam_prohibit_tenet_decision_tooltip$"
+ ppb_prohibit_tenet_bull_decision_confirm: "$pam_prohibit_tenet_decision_confirm$"
+ ppb_crusade_bull_decision_no_item_selected: "" # Intentionally blank, the target requirement already explains it
+ ppb_rite_heresy_bull_decision_no_item_selected: "" # Intentionally blank, the rite requirement already explains it
+ ppb_permit_tenet_bull_decision_no_item_selected: "$pam_permit_tenet_decision_no_item_selected$"
+ ppb_prohibit_tenet_bull_decision_no_item_selected: "$pam_prohibit_tenet_decision_no_item_selected$"

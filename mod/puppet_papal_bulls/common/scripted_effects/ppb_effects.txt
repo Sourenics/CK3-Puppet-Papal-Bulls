@@ -1,0 +1,16 @@
+﻿# Puppet Papal Bulls - scripted effects.
+
+# Character scope: the root of a bull decision, either the Pope (puppet path) or the player who keeps
+# him as external clerical puppet. Saves the Pope as scope:ppb_pope.
+ppb_save_pope_effect = {
+	if = {
+		limit = {
+			is_ai = no
+			exists = puppet:external_theological_agent_puppet
+		}
+		puppet:external_theological_agent_puppet = { save_scope_as = ppb_pope }
+	}
+	else = {
+		save_scope_as = ppb_pope
+	}
+}

@@ -1,0 +1,26 @@
+﻿# Puppet Papal Bulls - puppet actions: a player whose puppet is the Pope commands him to enact a bull.
+# Decision actions run with root = the puppet (the Pope) and scope:puppeteer = the player.
+
+ppb_puppet_action_crusade_bull = {
+	type = decision
+	decision = ppb_crusade_bull_decision
+	is_enabled = { ppb_player_commands_pope_trigger = yes }
+}
+
+ppb_puppet_action_rite_heresy_bull = {
+	type = decision
+	decision = ppb_rite_heresy_bull_decision
+	is_enabled = { ppb_player_commands_pope_trigger = yes }
+}
+
+ppb_puppet_action_permit_tenet_bull = {
+	type = decision
+	decision = ppb_permit_tenet_bull_decision
+	is_enabled = { ppb_player_commands_pope_trigger = yes }
+}
+
+ppb_puppet_action_prohibit_tenet_bull = {
+	type = decision
+	decision = ppb_prohibit_tenet_bull_decision
+	is_enabled = { ppb_player_commands_pope_trigger = yes }
+}

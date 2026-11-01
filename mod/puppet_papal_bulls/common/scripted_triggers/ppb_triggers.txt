@@ -1,0 +1,256 @@
+﻿# Puppet Papal Bulls - scripted triggers.
+
+# Character scope: the root of a bull decision, either the Pope (puppet path) or the player who keeps
+# him as external clerical puppet. Saves the Pope as scope:ppb_pope; fails if the player has no such puppet.
+ppb_save_pope_trigger = {
+	trigger_if = {
+		limit = { is_ai = no }
+		puppet:external_theological_agent_puppet ?= { save_temporary_scope_as = ppb_pope }
+	}
+	trigger_else = {
+		save_temporary_scope_as = ppb_pope
+	}
+}
+
+# Character scope: the Pope. The requirements of the vanilla Enact a Bull decision
+# (enact_a_bull_decision, game 1.20.1.2), without its requirement that the Pope be a player: he heads
+# a faith with a papacy, is an adult available to act, with enough piety and Church Authority.
+ppb_pope_can_enact_bull_trigger = {
+	has_pam_dlc_trigger = yes
+	any_held_title = { is_head_of_faith = yes }
+	faith ?= { has_papacy_trigger = yes }
+	is_adult = yes
+	is_available_adult = yes
+	piety >= pam_enact_a_bull_cost_value
+	OR = {
+		has_realm_law = church_authority_1
+		has_realm_law = church_authority_2
+		has_realm_law = church_authority_3
+	}
+}
+
+# Puppet action scope (root: the puppeteer, scope:puppet: the puppet). A player commands a puppet who
+# heads a faith with a papacy.
+ppb_player_commands_pope_trigger = {
+	is_ai = no
+	scope:puppet = {
+		any_held_title = { is_head_of_faith = yes }
+		faith ?= { has_papacy_trigger = yes }
+	}
+}
+
+# Character scope: the Pope. Requirements of the crusade bull: the vanilla checks of
+# pick_crusade_target_decision, with the Pope in place of the decision's root.
+ppb_crusade_bull_valid_trigger = {
+	save_temporary_scope_as = ppb_pope
+	ppb_pope_can_enact_bull_trigger = yes
+	custom_tooltip = {
+		text = enact_a_bull_decision_ghw_active_trigger_tt
+		faith = {
+			OR = {
+				has_doctrine_parameter = great_holy_wars_active
+				AND = {
+					has_doctrine_parameter = great_holy_wars_active_if_reformed
+					NOT = { has_doctrine_parameter = unreformed }
+				}
+				has_doctrine = divine_destiny_doctrine #SPECIAL: Has become the Chakravarti
+			}
+			has_doctrine = doctrine_spiritual_head
+			scope:ppb_pope.rite = {
+				NOR = {
+					AND = {
+						rite_has_tenet = tenet_dharmic_pacifism
+						faith = { NOT = { has_doctrine = divine_destiny_doctrine } }
+					}
+					rite_has_tenet = tenet_pacifism
+				}
+			}
+		}
+	}
+	faith = {
+		custom_tooltip = {
+			text = enact_a_bull_decision_existing_ghw_trigger_tt
+			NOT = { exists = great_holy_war } # No active GHW
+		}
+	}
+	custom_description = {
+		text = great_holy_war_cooldown
+		NOT = { faith = { exists = var:variable_ghw_cooldown } }
+	}
+	custom_tooltip = { # Valid target
+		text = enact_a_bull_decision_valid_target_trigger_tt
+		faith = {
+			save_temporary_scope_as = faith
+			save_temporary_scope_value_as = { # Used in valid_ghw_target_trigger
+				name = faith_strength
+				value = faith_military_strength
+			}
+			any_kingdom = {
+				valid_ghw_target_trigger = { FAITH = scope:faith }
+			}
+		}
+	}
+	custom_tooltip = {
+		text = enact_a_bull_decision_crusade_trigger_tt
+		OR = {
+			has_realm_law = church_authority_1
+			has_realm_law = church_authority_2
+			has_realm_law = church_authority_3
+			situation:the_christian_church ?= {
+				situation_current_phase = crusade_phase
+			}
+		}
+	}
+}
+
+ppb_crusade_bull_failures_trigger = {
+	save_temporary_scope_as = ppb_pope
+	is_available_adult = yes
+	is_imprisoned = no
+	custom_tooltip = {
+		text = enact_a_bull_crusade_cooldown_tt
+		NOT = { exists = var:enact_a_bull_crusade_cooldown }
+	}
+	custom_description = {
+		text = great_holy_war_cooldown
+		NOT = { faith = { exists = var:variable_ghw_cooldown } }
+	}
+}
+
+# Character scope: the Pope. Requirements of the rite heresy bull: the vanilla checks of
+# pam_declare_rite_heresy_bull_decision, with the Pope in place of the decision's root.
+ppb_rite_heresy_bull_valid_trigger = {
+	save_temporary_scope_as = ppb_pope
+	ppb_pope_can_enact_bull_trigger = yes
+	faith = {
+		any_faith_rite = {
+			pam_rite_can_be_declared_heresy_trigger = yes
+		}
+	}
+}
+
+ppb_rite_heresy_bull_failures_trigger = {
+	save_temporary_scope_as = ppb_pope
+	is_available_adult = yes
+	custom_tooltip = {
+		text = enact_a_bull_rite_heresy_cooldown_tt
+		NOT = { exists = var:enact_a_bull_rite_heresy_cooldown }
+	}
+	custom_tooltip = {
+		text = pam_rite_heresy_select_tt
+		exists = scope:selected_item
+	}
+}
+
+# Character scope: the Pope. Requirements of the permit tenet bull: the vanilla checks of
+# pam_permit_tenet_bull_decision, with the Pope in place of the decision's root.
+ppb_permit_tenet_bull_valid_trigger = {
+	save_temporary_scope_as = ppb_pope
+	ppb_pope_can_enact_bull_trigger = yes
+	any_character_tenet = {
+		knowledge_filter = known
+		ppb_tenet_can_be_permitted_no_actor_trigger = yes
+	}
+}
+
+ppb_permit_tenet_bull_failures_trigger = {
+	save_temporary_scope_as = ppb_pope
+	is_available_adult = yes
+	custom_tooltip = {
+		text = enact_a_bull_tenet_permitted_cooldown_tt
+		NOT = { exists = var:enact_a_bull_tenet_permitted_cooldown }
+	}
+	custom_tooltip = {
+		text = pam_tenet_stance_select_tt
+		exists = scope:selected_item
+	}
+	custom_tooltip = {
+		text = ecumenical_council_already_ongoing_tt
+		NOT = { faith = { has_variable = ecumenical_council_ongoing } }
+	}
+}
+
+# Character scope: the Pope. Requirements of the prohibit tenet bull: the vanilla checks of
+# pam_prohibit_tenet_bull_decision, with the Pope in place of the decision's root.
+ppb_prohibit_tenet_bull_valid_trigger = {
+	save_temporary_scope_as = ppb_pope
+	ppb_pope_can_enact_bull_trigger = yes
+	any_character_tenet = {
+		knowledge_filter = known
+		ppb_tenet_can_be_prohibited_no_actor_trigger = yes
+	}
+}
+
+ppb_prohibit_tenet_bull_failures_trigger = {
+	save_temporary_scope_as = ppb_pope
+	is_available_adult = yes
+	custom_tooltip = {
+		text = enact_a_bull_tenet_forbidden_cooldown_tt
+		NOT = { exists = var:enact_a_bull_tenet_forbidden_cooldown }
+	}
+	custom_tooltip = {
+		text = pam_tenet_stance_select_tt
+		exists = scope:selected_item
+	}
+	custom_tooltip = {
+		text = ecumenical_council_already_ongoing_tt
+		NOT = { faith = { has_variable = ecumenical_council_ongoing } }
+	}
+}
+
+# Tenet scope. Copies of the vanilla pam_tenet_can_be_permitted(_no_actor)_trigger and
+# pam_tenet_can_be_prohibited(_no_actor)_trigger (common/scripted_triggers/pam_scripted_triggers.txt,
+# game 1.20.1.2) that check the Pope's rite (scope:ppb_pope) instead of scope:actor or root, which may
+# be the player. Using copies also keeps mods that limit what an AI Pope may prohibit from blocking a
+# bull a player commands.
+ppb_tenet_can_be_permitted_trigger = {
+	save_temporary_scope_as = pam_tenet_candidate
+	custom_tooltip = {
+		text = pam_tenet_stance_can_be_permitted_tt
+		scope:ppb_pope.rite = {
+			NOR = {
+				has_tenet_status = { tenet = scope:pam_tenet_candidate status = permitted }
+				has_tenet_status = { tenet = scope:pam_tenet_candidate status = core }
+			}
+		}
+	}
+}
+
+ppb_tenet_can_be_permitted_no_actor_trigger = {
+	save_temporary_scope_as = pam_tenet_candidate
+	custom_tooltip = {
+		text = pam_tenet_stance_can_be_permitted_tt
+		scope:ppb_pope.rite = {
+			NOR = {
+				has_tenet_status = { tenet = scope:pam_tenet_candidate status = permitted }
+				has_tenet_status = { tenet = scope:pam_tenet_candidate status = core }
+			}
+		}
+	}
+}
+
+ppb_tenet_can_be_prohibited_trigger = {
+	save_temporary_scope_as = pam_tenet_candidate
+	custom_tooltip = {
+		text = pam_tenet_stance_can_be_prohibited_tt
+		scope:ppb_pope.rite = {
+			NOR = {
+				has_tenet_status = { tenet = scope:pam_tenet_candidate status = prohibited }
+				has_tenet_status = { tenet = scope:pam_tenet_candidate status = core }
+			}
+		}
+	}
+}
+
+ppb_tenet_can_be_prohibited_no_actor_trigger = {
+	save_temporary_scope_as = pam_tenet_candidate
+	custom_tooltip = {
+		text = pam_tenet_stance_can_be_prohibited_tt
+		scope:ppb_pope.rite = {
+			NOR = {
+				has_tenet_status = { tenet = scope:pam_tenet_candidate status = prohibited }
+				has_tenet_status = { tenet = scope:pam_tenet_candidate status = core }
+			}
+		}
+	}
+}
