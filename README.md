@@ -2,7 +2,7 @@
 
 # Puppet Papal Bulls
 
-A Crusader Kings III mod that lets you command a Pope who is your puppet to enact papal bulls. In the base game, a Pope you control as a puppet can excommunicate, grant claims or appoint cardinals on your command, but the bulls stay in his hands: only a player who is the Head of Faith can enact one. With this mod, the four bulls are puppet actions: you choose the bull and its target, and the Pope issues it in his own name.
+A Crusader Kings III mod that lets you command a Pope who is your puppet to enact papal bulls. In the base game, a Pope you control as a puppet can excommunicate or appoint cardinals on your command, but the bulls stay in his hands: only a player who is the Head of Faith can enact one. With this mod, the four bulls are puppet actions: you choose the bull and its target, and the Pope issues it in his own name.
 
 - **Game version:** 1.21.x
 - **Mod version:** 1.0.1
