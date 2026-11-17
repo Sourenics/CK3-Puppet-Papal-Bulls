@@ -4,8 +4,8 @@
 
 A Crusader Kings III mod that lets you command a Pope who is your puppet to enact papal bulls. In the base game, a Pope you control as a puppet can excommunicate, grant claims or appoint cardinals on your command, but the bulls stay in his hands: only a player who is the Head of Faith can enact one. With this mod, the four bulls are puppet actions: you choose the bull and its target, and the Pope issues it in his own name.
 
-- **Game version:** 1.20.x
-- **Mod version:** 1.0.0
+- **Game version:** 1.21.x
+- **Mod version:** 1.0.1
 - **Author:** [Sourenics](https://github.com/Sourenics)
 - **Steam Workshop:** [Puppet Papal Bulls](https://steamcommunity.com/sharedfiles/filedetails/?id=3831434191)
 
@@ -62,7 +62,7 @@ Please open an [issue](../../issues/new/choose) using the **Bug report** templat
    - **macOS:** `~/Documents/Paradox Interactive/Crusader Kings III/logs/error.log`
 
    The log is overwritten every time the game starts, so copy it right after the problem happens, before launching the game again. Ideally, reproduce the problem in a session with **only Puppet Papal Bulls enabled**.
-2. **The game version** (shown in the main menu, for example 1.20.1) and **the mod version**.
+2. **The game version** (shown in the main menu, for example 1.21.0) and **the mod version**.
 3. **Your active DLCs** and **your full mod list in load order**.
 4. **The bull** you tried to command, who your puppet is (title and faith) and **what happened** (the action was missing, greyed out with a reason, or the bull did nothing).
 5. **Screenshots** of the puppet action and of any message you got, if possible.
